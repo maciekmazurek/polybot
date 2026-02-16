@@ -8,7 +8,6 @@ logger = logging.getLogger(__name__)
 
 class PolyClient:
     def __init__(self):
-        # Use Polymarket's Gamma API (or CLOB API)
         self.base_url = "https://gamma-api.polymarket.com"
         self.timeout = httpx.Timeout(10.0)
 
@@ -39,7 +38,6 @@ class PolyClient:
         for item in raw_data:
             try:
                 # Map API payload fields to our local model
-                # Note: API fields may differ; this is an example mapping
                 market = Market(
                     id=item.get("id"),
                     question=item.get("question"),
