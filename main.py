@@ -2,6 +2,7 @@ import asyncio
 from src.api.polymarket_client import PolyClient
 from src.api.news_provider import NewsProvider
 from src.brain.llm_factory import Brain
+from src.strategy.probability_engine import find_best_proposals
 
 
 async def main() -> None:
@@ -10,15 +11,17 @@ async def main() -> None:
     brain = Brain()
 
     active_markets = await poly_client.get_active_markets()
-    sample_market = active_markets[0]
+    proposals = []
 
-    context = await news_provider.get_context_for_question(question=sample_market.question)
-    market_analysys = await brain.analyze_market(sample_market, context)
-
-    print(f"Propability: {market_analysys.probability}")
-    print(f"Reasoning: {market_analysys.reasoning}")
-    print(f"Confidence: {market_analysys.confidence}")
-
+    for market in active_markets:
+        context = await news_provider.get_context_for_question(question=market.question)
+        market_analysys = await brain.analyze_market(market, context)
+        proposal = find_best_proposals(market, market_analysys)
+        if proposal is not None:
+            proposals.append(proposal)
+        
+    sorted(proposals, key=lambda x: x["edge"])
+    
 
 if __name__ == "__main__":
     asyncio.run(main())
