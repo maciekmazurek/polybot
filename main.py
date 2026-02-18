@@ -7,6 +7,7 @@ from src.api.news_provider import NewsProvider
 from src.brain.llm_factory import Brain
 from src.strategy.probability_engine import find_best_proposals
 from src.utils.database import DatabaseManager
+from src.strategy.kelly_criterion import KellyCalculator
 
 # Load API keys from the .env file
 load_dotenv()
@@ -26,6 +27,10 @@ async def process_market(market, news_provider, brain, db_manager):
         return None
 
 async def main():
+    # Wallet config
+    MY_BANKROLL = 50 # USDC
+    kelly = KellyCalculator()
+    
     # Initialize clients
     db_manager = DatabaseManager()
     await db_manager.initialize()
@@ -57,10 +62,17 @@ async def main():
         print("No strong opportunities meeting the criteria.")
     else:
         for opt in opportunities:
+            suggested_bet = kelly.calculate_bet_amount(
+                bankroll=MY_BANKROLL, 
+                price=opt['market_price'], 
+                estimated_prob=opt['ai_probability']
+                )
+            
             print(f"\n  MARKET: {opt['question']}")
             print(f"    Market price: {opt['market_price']:.2f}")
             print(f"    AI estimate:  {opt['ai_probability']:.2f}")
             print(f"    EDGE: {opt['edge']*100:.1f}%")
+            print(f"    Suggested bet: {suggested_bet}")
             print(f"    Reasoning: {opt['reasoning']}...")
             print("\n" + "-" * 30)
 
