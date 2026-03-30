@@ -27,8 +27,6 @@ async def process_market(market, news_provider, brain, db_manager):
         return None
 
 async def main():
-    # Wallet config
-    MY_BANKROLL = 50 # USDC
     kelly = KellyCalculator()
     
     # Initialize clients
@@ -41,7 +39,7 @@ async def main():
     print("Starting the scan.\n")
     
     # 1. Fetch active markets (e.g. 10 most popular)
-    markets = await poly_client.get_active_markets(limit=10)
+    markets = await poly_client.get_active_markets(limit=os.getenv("MARKETS_TO_ANALYZE"))
     
     if not markets:
         print("No active markets found.")
@@ -63,7 +61,7 @@ async def main():
     else:
         for opt in opportunities:
             suggested_bet = kelly.calculate_bet_amount(
-                bankroll=MY_BANKROLL, 
+                bankroll=os.getenv("BANKROLL"),
                 price=opt['market_price'], 
                 estimated_prob=opt['ai_probability']
                 )
