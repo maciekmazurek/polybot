@@ -41,7 +41,7 @@ async def main():
     print("Starting the scan.\n")
     
     # 1. Fetch active markets (e.g. 10 most popular)
-    markets = await poly_client.get_active_markets(limit=15)
+    markets = await poly_client.get_active_markets(limit=10)
     
     if not markets:
         print("No active markets found.")
